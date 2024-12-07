@@ -12,12 +12,11 @@ const tokenAuthentication = (req, res, next) => {
 
     // Extract the token
     const token = authHeader.split(" ")[1];
-
+    console.log({ token });
     const secret_key = process.env.SECRET_KEY;
     const decoded = jwt.verify(token, secret_key);
-
     req.body = { ...req.body, decoded };
-    
+
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
