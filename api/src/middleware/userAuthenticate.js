@@ -24,7 +24,7 @@ const userAuthenticate = async (req, res, next) => {
     const secret_key = process.env.SECRET_KEY;
 
     // Generate a token (use a library like jsonwebtoken)
-    const token = jwt.sign({ id: acc._id }, secret_key, { expiresIn: "1h" });
+    const token = jwt.sign({ id: acc._id }, secret_key, { expiresIn: "5s" });
 
     return res.json({ token });
   } catch (error) {

@@ -1,4 +1,5 @@
 // import user from "../schemas/user";
+const tokenAuthentication = require("../middleware/tokenAuthentication");
 const userAuthenticate = require("../middleware/userAuthenticate");
 const { encryptPassword } = require("../utils/utils");
 const { Router } = require("express");
@@ -33,6 +34,10 @@ authRoute.post("/signup", async (req, res) => {
 
 authRoute.post("/signin", userAuthenticate, (req, res) => {
   res.status(200).send(req.body);
+});
+
+authRoute.get("/validate_token", tokenAuthentication, (req, res) => {
+  res.status(204);
 });
 
 module.exports = authRoute;
