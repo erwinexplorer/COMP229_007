@@ -1,0 +1,41 @@
+.form {
+  border: 1px solid black;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 4px black;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-label {
+  margin-bottom: 8px;
+}
+
+.form-input {
+  display: block;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid black;
+  font-size: 16px;
+  &:focus {
+    box-shadow: 0px 0px 5px black;
+  }
+  &:focus-visible {
+    outline-color: black;
+  }
+}
+.form-link {
+  text-decoration: none;
+  color: blue;
+  cursor: pointer;
+}
+
+.form-error {
+  color: red;
+  padding: 5px;
+}

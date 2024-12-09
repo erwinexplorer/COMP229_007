@@ -1,13 +1,25 @@
 import { useMutation } from "@tanstack/react-query";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
-import authService, { LoginPayload } from "../../services/login";
+import axios, { AxiosError } from "axios";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useFormik } from "formik";
+import Button from "../../components/button";
+import Form, { Control, Error, Group, Label, Link } from "../../components/form";
+import authService, { LoginPayload } from "../../services/auth";
+import "./styles.scss";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
 
   const { login } = authService;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginPayload>({
+    defaultValues: { username: "", password: "" },
+  });
 
   const { mutate } = useMutation({
     mutationFn: login,
@@ -16,55 +28,44 @@ const Login = () => {
       localStorage.setItem("token", token);
       navigate("/");
     },
-    onError: (err) => {
-      console.log({ err });
+    onError: (err: Error | AxiosError) => {
+      if (axios.isAxiosError(err)) {
+        console.log("Axios error : " + err);
+        if (err.status === 401) {
+          toast("Password is incorrect", { autoClose: 1000, closeButton: false, hideProgressBar: true });
+        } else if (err.status === 404) {
+          toast("Username not found", { autoClose: 1000, closeButton: false, hideProgressBar: true });
+        }
+      } else {
+        console.log("Other error : " + err);
+      }
     },
-  });
-
-  const { handleSubmit, getFieldProps } = useFormik<LoginPayload>({
-    initialValues: {
-      username: "",
-      password: "",
-    },
-    onSubmit: (data) => mutate(data),
   });
 
   return (
-    <div>
-      <Container className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-        <Row>
-          <Col>
-            <Form className="p-4 border rounded" onSubmit={handleSubmit}>
-              <Form.Group className="mb-3" controlId="formUsername">
-                <Form.Label>Username</Form.Label>
-                <Form.Control type="text" required placeholder="Enter username" {...getFieldProps("username")} />
-              </Form.Group>
-
-              <Form.Group className="mb-3" controlId="formPassword">
-                <Form.Label>Password</Form.Label>
-                <Form.Control type="password" required placeholder="Enter password" {...getFieldProps("password")} />
-              </Form.Group>
-
-              <div className="mb-3 text-end">
-                <a href="#" style={{ textDecoration: "none", color: "#007bff" }}>
-                  Forgot password
-                </a>
-              </div>
-
-              <Button variant="primary" type="submit" className="w-100">
-                Sign in
-              </Button>
-
-              <div className="mt-3 text-center">
-                <span>Don’t have an account? </span>
-                <a href="/signup" style={{ textDecoration: "none", color: "#007bff" }}>
-                  Sign up
-                </a>
-              </div>
-            </Form>
-          </Col>
-        </Row>
-      </Container>
+    <div className="form-container">
+      <Form onSubmit={handleSubmit((data) => mutate(data))}>
+        <Group>
+          <Label>Username</Label>
+          <Control placeholder="Username" {...register("username", { required: true })} />
+          <Error isError={errors.username}>Username is required</Error>
+        </Group>
+        <Group>
+          <Label>Password</Label>
+          <Control placeholder="Password" type="password" {...register("password", { required: true })} />
+          <Error isError={errors.password}>Password is required</Error>
+        </Group>
+        <Group style={{ textAlign: "right" }}>
+          <Link href="#">Forgot password</Link>
+        </Group>
+        <Group>
+          <Button type="submit">Sign In</Button>
+        </Group>
+        <Group style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+          <Label style={{ marginRight: "5px" }}>Don't have an account?</Label>
+          <Link href="/signup">Sign Up</Link>
+        </Group>
+      </Form>
     </div>
   );
 };
