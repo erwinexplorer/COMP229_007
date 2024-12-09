@@ -1,13 +1,16 @@
-// import user from "../schemas/user";
+const user = require("../schemas/user");
+const account = require("../schemas/account");
 const tokenAuthentication = require("../middleware/tokenAuthentication");
 const userAuthenticate = require("../middleware/userAuthenticate");
+const validatePassword = require("../middleware/validatePassword");
 const { encryptPassword } = require("../utils/utils");
 const { Router } = require("express");
 
 const authRoute = Router();
 
-authRoute.post("/signup", async (req, res) => {
-  const { first_name, last_name, email, username, password } = req.body;
+authRoute.post("/signup", userAuthenticate, async (req, res) => {
+  const { first_name, last_name, email, address, username, password } = req.body;
+
   const hash_password = encryptPassword(password);
 
   try {
@@ -16,6 +19,7 @@ authRoute.post("/signup", async (req, res) => {
       first_name,
       last_name,
       email,
+      address,
       role: "USER",
     });
     const userSave = await userSchema.save();
@@ -28,16 +32,13 @@ authRoute.post("/signup", async (req, res) => {
     await accountSchema.save();
     res.status(201).json(userSave);
   } catch (error) {
+    console.log(error);
     res.status(400).json({ message: error.message });
   }
 });
 
-authRoute.post("/signin", userAuthenticate, (req, res) => {
+authRoute.post("/signin", validatePassword, (req, res) => {
   res.status(200).send(req.body);
-});
-
-authRoute.get("/validate_token", tokenAuthentication, (req, res) => {
-  res.status(204);
 });
 
 module.exports = authRoute;
